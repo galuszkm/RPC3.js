@@ -48,7 +48,7 @@ function FileBox(props) {
       )
     
     function plotChannel(idx){
-        const chan = props.file.Channels.filter(i => i.Number == idx)[0];
+        const chan = props.file.Channels.filter(i => i.Number === idx)[0];
         const time = chan.value.map((v, idx)=> idx*chan.dt);
         const data = {
           ...dflt.dataItem, 

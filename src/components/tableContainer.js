@@ -60,16 +60,16 @@ const TableContainer = ({ columns, data, onRowClick }) => {
         </thead>
 
         <tbody {...getTableBodyProps()}>
-          {rows.map((row, rowIdx) => {
+          {rows.map((row) => {
             prepareRow(row);
             return (
               <tr {...row.getRowProps()}
                 onClick={() => {
-                  onRowClick(rowIdx+1);
-                  setSelected(rowIdx)
+                  onRowClick(row.index+1);
+                  setSelected(row.index)
                 }}
                 style = {{
-                  backgroundColor: rowIdx===selected ? 'rgb(218, 242, 142)': 'white',
+                  backgroundColor: row.index===selected ? 'rgb(218, 242, 142)': 'white',
                   cursor: 'pointer',
                 }}
               >
