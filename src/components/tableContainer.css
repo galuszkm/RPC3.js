@@ -1,0 +1,13 @@
+.resizer {
+    display: inline-block;
+    background: grey;
+    opacity: 0;
+    width: 10px;
+    height: 75px;
+    position: absolute;
+    right: 4px;
+    top: -10px;
+    z-index: 1;
+    touch-action:none;
+}
+

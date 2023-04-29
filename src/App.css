@@ -1,0 +1,22 @@
+.App {
+  display: inline-flex;
+  align-self: flex-start;
+  border: 1px solid rgba(25, 25, 160, 0.5);
+  border-radius: 20px;
+  background-color: rgba(252,252,252, 0.5);
+  width: 100%;
+  padding-top: 20px;
+  padding-bottom: 20px;
+}
+
+.Chart {
+  width: 60%;
+  flex-direction: column;
+  height: 700px;
+  padding: 10px;
+}
+
+.Panel {
+  padding: 10px;
+  flex-direction: column;
+}
