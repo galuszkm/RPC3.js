@@ -6,4 +6,4 @@ This a client-side JavaScript app developed in React.JS
 
 Try it [here](https://htmlpreview.github.io/?https://github.com/galuszkm/RPC3.js/blob/master/example/index.html)!
 
-Click [here](https://github.com/galuszkm/RPC3.js/blob/master/example/SignalExample.rsp) to download the test file with signals.
+Click [here](https://github.com/galuszkm/RPC3.js/raw/master/example/SignalExample.rsp) to download the test file with signals.
