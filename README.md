@@ -11,4 +11,4 @@ This is a client-side JavaScript app developed in React.JS
 <img src="https://github.com/galuszkm/RPC3.js/blob/master/public/WebApp.png?raw=true">
 
 ## Developer notes
-RPC-III file format is described <a href="https://github.com/galuszkm/RPC3.js/blob/master/public/PRC3_Format.pdf?raw=true">here</a>
+RPC-III file format is described <a href="https://github.com/galuszkm/RPC3.js/blob/master/public/RPC3_Format.pdf">here</a>
