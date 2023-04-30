@@ -83,7 +83,7 @@ function Dropzone(props) {
   } = useDropzone({
       onDrop,
       accept: {
-        'application/x-binary': ['.rsp', '.rpc', '.rpc3'],
+        'application/x-binary': ['.rsp', '.rpc', '.rpc3', '.tim'],
     },
   });
 

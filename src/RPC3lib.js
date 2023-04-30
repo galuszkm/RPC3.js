@@ -98,8 +98,8 @@ export class RPC3 {
           const head = file_handle.slice(idx, idxLast);
           let [__head__, __value__] = [head.slice(0, 32), head.slice(32)];
           const decoder = new TextDecoder('windows-1251');
-          const _value = decoder.decode(__value__).toString('utf-8').replace(/\0/g, '');
-          const _head = decoder.decode(__head__).toString('utf-8').replace(/\0/g, '');
+          const _value = decoder.decode(__value__).toString('utf-8').replaceAll(/\0/g, '').replaceAll('\n', '');
+          const _head = decoder.decode(__head__).toString('utf-8').replaceAll(/\0/g, '').replaceAll('\n', '');
       
           return [_head, _value, idxLast];
           
@@ -171,20 +171,32 @@ export class RPC3 {
           this.Headers["PTS_PER_FRAME"] = parseInt(this.Headers["PTS_PER_FRAME"]);
           this.Headers["PTS_PER_GROUP"] = parseInt(this.Headers["PTS_PER_GROUP"]);
           this.Headers["FRAMES"] = parseInt(this.Headers["FRAMES"]);
-          this.Headers["INT_FULL_SCALE"] = parseInt(this.Headers["INT_FULL_SCALE"]);
           this.__data_type__ = this.Headers["DATA_TYPE"];
           this.dt = this.Headers["DELTA_T"];
+
+          // Read INT_FULL_SCALE for SHORT_INTEGER data type
+          if (this.__data_type__ === 'SHORT_INTEGER'){
+            this.Headers["INT_FULL_SCALE"] = parseInt(this.Headers["INT_FULL_SCALE"]);
+          }
+          
       } catch (expected_header) {
           this.Errors.push(`A mandatory header is missing: ${expected_header}`);
           return false;
       }
 
       for (let channel=0; channel<this.Headers['CHANNELS']; channel++){
+          
+          // Set channel scale factor for SHORT_INTEGER data types
+          let _scale = 1.0
+          if (this.__data_type__ === 'SHORT_INTEGER'){
+            _scale = parseFloat(this.Headers['SCALE.CHAN_' + (channel + 1)]);
+          }
+
           const Channel = new Channel_Class(
             channel + 1,  
             this.Headers['DESC.CHAN_' + (channel + 1)],
             this.Headers['UNITS.CHAN_' + (channel + 1)],
-            parseFloat(this.Headers['SCALE.CHAN_' + (channel + 1)]),
+            _scale,
             this.dt
           );
           this.Channels.push(Channel);
@@ -238,17 +250,20 @@ export class RPC3 {
     for (let frame_group of data_order){
       for (let channel=0; channel<channels; channel++){
 
-        // Channel scale
-        const channel_scale = this.Channels[channel]._scale
-        
-        // Standard integer full scale
-        const int_standard_full_scale = this.integer_standard_full_scale
-        
-        // RPC integer full scale
-        const int_rpc_full_scale = this.Headers['INT_FULL_SCALE']
+        let scale_factor = 1.0;
+        if (this.__data_type__ === 'SHORT_INTEGER'){
+          // Channel scale
+          const channel_scale = this.Channels[channel]._scale
+          
+          // Standard integer full scale
+          const int_standard_full_scale = this.integer_standard_full_scale
+          
+          // RPC integer full scale
+          const int_rpc_full_scale = this.Headers['INT_FULL_SCALE']
 
-        // Compute scale factor
-        let scale_factor = int_rpc_full_scale / int_standard_full_scale * channel_scale
+          // Compute scale factor
+          scale_factor = int_rpc_full_scale / int_standard_full_scale * channel_scale
+        }
 
         for (let frame=0; frame<frame_group.length; frame++){
             let idxLast = idx + point_per_frame * this.DATA_TYPES[this.__data_type__].bytes;
