@@ -18,20 +18,26 @@ function RPC3_Viewer() {
     ...{
       xaxis: {
         ...dflt.axis,
-        ...{title: 'Time [s]'}
-        }, 
+        ...{
+          title: 'Time [s]',
+          rangeslider: {},
+        }
+      }, 
       yaxis: {
         ...dflt.axis,
-        ...{title: yTitle}
-        },
-        title: {
-          ...dflt.layout.title,
-          ...{text: chartTitle}
-        },
-        plot_bgcolor: 'rgba(252,252,252, 0.5)',
-        paper_bgcolor: 'rgba(252,252,252, 0.5)',
-      }, 
-    }
+        ...{
+          title: yTitle,
+          fixedrange: true,
+        }
+      },
+      title: {
+        ...dflt.layout.title,
+        ...{text: chartTitle}
+      },
+      plot_bgcolor: 'rgba(252,252,252, 0.5)',
+      paper_bgcolor: 'rgba(252,252,252, 0.5)',
+    }, 
+  }
 
   function addPlotData(data){
     setPlotdata([data])

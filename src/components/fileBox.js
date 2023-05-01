@@ -56,12 +56,12 @@ function FileBox(props) {
             x: time, 
             y:chan.value, 
             name:chan.Name, 
-            hovertemplate: '%{y:.4f} ' + chan.Units
+            hovertemplate: '%{y:.4f} ' + chan.Units,
           }
         };
-        props.addPlotData(data)
-        props.setChartTitle('<b style="color:rgb(0,110,160)">' + props.file.Name + '</b>    Channel: ' + chan.Name)
-        props.set_yTitle(chan.Units)
+        props.addPlotData(data);
+        props.setChartTitle('<b style="color:rgb(0,110,160)">' + props.file.Name + '</b>    Channel: ' + chan.Name);
+        props.set_yTitle('[' + chan.Units + ']');
     }
 
     return (
@@ -76,6 +76,7 @@ function FileBox(props) {
               data={props.file.Channels} 
               style={{marginBottom: 0}} 
               onRowClick={plotChannel}
+              selected={props.selected}
             />
         </Container>
     )

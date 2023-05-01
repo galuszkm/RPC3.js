@@ -7,7 +7,7 @@ import './tableContainer.css'
 import { Table } from 'reactstrap';
 import { Filter, DefaultColumnFilter } from './filters';
 
-const TableContainer = ({ columns, data, onRowClick }) => {
+const TableContainer = ({ columns, data, onRowClick, selected }) => {
   const {
     getTableProps,
     getTableBodyProps,
@@ -24,8 +24,6 @@ const TableContainer = ({ columns, data, onRowClick }) => {
     useBlockLayout,
     useResizeColumns,
   );
-
-  const [selected, setSelected] = useState(-1);
 
   // Create resizer (dragable div) at the end of header th
   // Resizer is invisiable by setting opacity to 1 in CSS style
@@ -66,10 +64,10 @@ const TableContainer = ({ columns, data, onRowClick }) => {
               <tr {...row.getRowProps()}
                 onClick={() => {
                   onRowClick(row.index+1);
-                  setSelected(row.index)
+                  selected[1](row.original.hash())
                 }}
                 style = {{
-                  backgroundColor: row.index===selected ? 'rgb(218, 242, 142)': 'white',
+                  backgroundColor: row.original.hash()===selected[0] ? 'rgb(218, 242, 142)': 'white',
                   cursor: 'pointer',
                 }}
               >

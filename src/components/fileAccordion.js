@@ -4,6 +4,7 @@ import FileBox from './fileBox';
 
 function FileAccordion(props) {
   const [activeIndex, setActiveIndex] = useState(-1);
+  const [selChannel, setSelChannel] = useState(0);
 
   function handleTitleClick(event, { index }) {
     setActiveIndex(activeIndex === index ? -1 : index);
@@ -27,6 +28,7 @@ function FileAccordion(props) {
               addPlotData={props.addPlotData} 
               set_yTitle={props.set_yTitle} 
               setChartTitle={props.setChartTitle}
+              selected={[selChannel, setSelChannel]}
             />
           </Accordion.Content>
         </React.Fragment>
