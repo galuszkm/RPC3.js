@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Accordion, Icon } from 'semantic-ui-react';
 import FileBox from './fileBox';
 
-function FileAccordion(props) {
+function FileAccordion({files, addPlotData, set_yTitle, setChartTitle}) {
   const [activeIndex, setActiveIndex] = useState(-1);
   const [selChannel, setSelChannel] = useState(0);
 
@@ -12,7 +12,7 @@ function FileAccordion(props) {
 
   return (
     <Accordion styled fluid>
-      {props.files.map((file, index) => (
+      {files.map((file, index) => (
         <React.Fragment key={index}>
           <Accordion.Title
             active={activeIndex === index}
@@ -22,12 +22,12 @@ function FileAccordion(props) {
             <Icon name='dropdown' />
             {file.Name}
           </Accordion.Title>
-          <Accordion.Content active={activeIndex === index} style={{paddingBottom: 2}}>
+          <Accordion.Content active={activeIndex === index} style={{paddingBottom: 2, paddingTop: 0}}>
             <FileBox 
               file={file} 
-              addPlotData={props.addPlotData} 
-              set_yTitle={props.set_yTitle} 
-              setChartTitle={props.setChartTitle}
+              addPlotData={addPlotData} 
+              set_yTitle={set_yTitle} 
+              setChartTitle={setChartTitle}
               selected={[selChannel, setSelChannel]}
             />
           </Accordion.Content>

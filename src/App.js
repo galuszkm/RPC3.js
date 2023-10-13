@@ -1,9 +1,8 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { ChartPlotly, dflt } from './chart-plotly';
 import Dropzone from './components/dropzone';
 import FileAccordion from './components/fileAccordion'
-import { Header } from 'semantic-ui-react';
-import 'semantic-ui-css/semantic.min.css';
+import 'semantic-ui-css/semantic.css'
 import './App.css'
 
 function RPC3_Viewer() {
@@ -13,14 +12,14 @@ function RPC3_Viewer() {
   const [yTitle, set_yTitle] = useState('')
   const [chartTitle, setChartTitle] = useState('')
 
-  const layout = {
+  const layout = useMemo(() => ({
     ...dflt.layout, 
     ...{
       xaxis: {
         ...dflt.axis,
         ...{
           title: 'Time [s]',
-          rangeslider: {},
+          // rangeslider: {},
         }
       }, 
       yaxis: {
@@ -37,7 +36,7 @@ function RPC3_Viewer() {
       plot_bgcolor: 'rgba(252,252,252, 0.5)',
       paper_bgcolor: 'rgba(252,252,252, 0.5)',
     }, 
-  }
+  }), [yTitle, chartTitle]);
 
   function addPlotData(data){
     setPlotdata([data])
@@ -49,10 +48,9 @@ function RPC3_Viewer() {
 
   return (
     <div>
-      <Header as='h2' icon='line graph' content='RPC-III viewer' />
       <div className='App'>
         <div className='Chart'>
-          <ChartPlotly data={plotdata} layout={layout} config={dflt.config}/>
+          <ChartPlotly key='chart' data={plotdata} layout={layout} config={dflt.config}/>
         </div>
         <div className='Panel'>
           <Dropzone addFiles={addFiles}></Dropzone>

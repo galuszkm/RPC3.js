@@ -11,3 +11,14 @@
     touch-action:none;
 }
 
+.rotate-text {
+    transform: rotate(-90deg) translate(-25px, -8px);
+}
+
+input[type=checkbox]{
+    scale: 1.7;
+    margin-left: 4px !important;
+    margin-top: 4px !important;
+    cursor: pointer;
+}
+

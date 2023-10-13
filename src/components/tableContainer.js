@@ -1,13 +1,15 @@
 // SOURCE:
 // https://thewidlarzgroup.com/react-table-7
 
-import React, { useState } from 'react';
+import React from 'react';
 import { useTable, useFilters, useBlockLayout, useResizeColumns } from 'react-table';
 import './tableContainer.css'
 import { Table } from 'reactstrap';
 import { Filter, DefaultColumnFilter } from './filters';
 
 const TableContainer = ({ columns, data, onRowClick, selected }) => {
+
+  // Table hook
   const {
     getTableProps,
     getTableBodyProps,
@@ -39,46 +41,70 @@ const TableContainer = ({ columns, data, onRowClick, selected }) => {
     }
   }
 
-  return (
-      <Table bordered hover {...getTableProps()} style={{marginBottom: 0}}>
-        <thead>
-          {headerGroups.map((headerGroup) => (
-            <tr {...headerGroup.getHeaderGroupProps()}>
-              {headerGroup.headers.map((column, colIdx) => (
-                <th {...column.getHeaderProps()}>
-                  <div {...column.getHeaderProps()}>
-                    {column.render('Header')}
-                    {createResizer(colIdx, headerGroup.headers, column)}
-                  </div>
-                  <Filter column={column} />
-                </th>
-              ))}
-            </tr>
-          ))}
-        </thead>
+  function getCellProps(cell, idx){
+    const props = {...cell.getCellProps()}
+    props.style = {
+      ...props.style, 
+      height: idx===0 ? '30.8px' : undefined,
+      fontSize: '14px',
+    }
+    return props
+  }
 
-        <tbody {...getTableBodyProps()}>
-          {rows.map((row) => {
-            prepareRow(row);
-            return (
-              <tr {...row.getRowProps()}
-                onClick={() => {
-                  onRowClick(row.index+1);
-                  selected[1](row.original.hash())
-                }}
-                style = {{
-                  backgroundColor: row.original.hash()===selected[0] ? 'rgb(218, 242, 142)': 'white',
-                  cursor: 'pointer',
-                }}
-              >
-                {row.cells.map((cell) => {
-                  return <td {...cell.getCellProps()}>{cell.render('Cell')} </td>;
-                })}
-              </tr>
-            );
-          })}
-        </tbody>
-      </Table>
+  function getHeaderProps(column){
+    const props = {...column.getHeaderProps()}
+    props.style = {
+      ...props.style, 
+      fontSize: '14px',
+    }
+    return props
+  }
+
+  return (
+    <Table bordered hover {...getTableProps()} style={{marginBottom: 0}}>
+      <thead>
+        {headerGroups.map((headerGroup, index) => (
+          <tr {...headerGroup.getHeaderGroupProps()}>
+            {headerGroup.headers.map((column, colIdx) => (
+              <th {...column.getHeaderProps()}>
+                <div {...getHeaderProps(column)}
+                  className={index === 0 && colIdx === 0 ? 'rotate-text' : ''}
+                >
+                  {column.render('Header')}
+                  {createResizer(colIdx, headerGroup.headers, column)}
+                </div>
+                <Filter column={column} />
+              </th>
+            ))}
+          </tr>
+        ))}
+      </thead>
+      <tbody {...getTableBodyProps()}>
+        {rows.map((row) => {
+          prepareRow(row);
+          return (
+            <tr {...row.getRowProps()}
+              onClick={() => {
+                onRowClick(row.index+1);
+                selected[1](row.original.hash())
+              }}
+              style = {{
+                backgroundColor: row.original.hash()===selected[0] ? 'rgb(218, 242, 142)': 'white',
+                cursor: 'pointer',
+              }}
+            >
+              {row.cells.map((cell, cellIdx) => {
+                return (
+                  <td {...getCellProps(cell, cellIdx)} >
+                    {cell.render('Cell')}
+                  </td>
+                )
+              })}
+            </tr>
+          );
+        })}
+      </tbody>
+    </Table>
   );
 };
 

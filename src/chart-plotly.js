@@ -1,6 +1,6 @@
 // all configs  https://github.com/plotly/plotly.js/blob/master/src/plot_api/plot_config.js
 
-import React, {useState} from "react";
+import React, {useMemo, useState} from "react";
 import {Modal} from "semantic-ui-react";
 import plotlyLib  from 'plotly.js/dist/plotly-basic'
 import createPlotlyComponent from 'react-plotly.js/factory';
@@ -129,6 +129,8 @@ export const ChartPlotly = (props) => {
   const modeBarButtonsToAdd = [...config.modeBarButtonsToAdd, popBtn]
   const configExt = {...config, modeBarButtonsToAdd}
 
+  const plotData = useMemo(() => data, [data]);
+
   let modal = ''
   if (open) {  // plot only if modal active
     const xaxis = {...layout.xaxis, domain:[0.0, 1.0]}
@@ -145,14 +147,14 @@ export const ChartPlotly = (props) => {
         onClose={() => setOpen(false)}
         onOpen={() => setOpen(true)}
       >
-        <Plot data={data} layout={layoutModal} config={config}
+        <Plot data={plotData} layout={layoutModal} config={config}
               style={{width: '100%', height: '100%'}} useResizeHandler={true}/>
       </Modal>
     )
   }
   return (
     <>
-      <Plot data={data} layout={layout} config={configExt}
+      <Plot data={plotData} layout={layout} config={configExt}
             style={{width: '100%', height: '100%'}} useResizeHandler={true}/>
       {modal}
     </>

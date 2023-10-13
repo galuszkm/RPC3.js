@@ -1,6 +1,6 @@
 {
   "name": "rpc3.js",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "dependencies": {
     "@testing-library/jest-dom": "^5.16.5",
@@ -8,7 +8,10 @@
     "@testing-library/user-event": "^13.5.0",
     "bootstrap": "^5.2.3",
     "buffer": "^6.0.3",
+    "html-webpack-plugin": "^5.5.3",
     "jquery": "^3.6.4",
+    "mini-css-extract-plugin": "^2.7.6",
+    "node-sass": "^9.0.0",
     "plotly.js": "^2.22.0",
     "python-struct": "^1.1.3",
     "react": "^18.2.0",
@@ -18,13 +21,14 @@
     "react-scripts": "^2.1.3",
     "react-table": "^7.8.0",
     "reactstrap": "^9.1.9",
+    "sass-loader": "^13.3.2",
     "semantic-ui-css": "^2.5.0",
     "semantic-ui-react": "^2.1.4",
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "npx webpack --mode production",
+    "start": "webpack serve --open --config webpack.dev.js",
+    "build": "webpack --config webpack.prod.js",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
@@ -52,6 +56,7 @@
     "@babel/preset-react": "^7.18.6",
     "css-loader": "^6.7.3",
     "style-loader": "^3.3.2",
-    "webpack-cli": "^5.0.2"
+    "webpack-cli": "^5.0.2",
+    "webpack-dev-server": "^4.15.1"
   }
 }

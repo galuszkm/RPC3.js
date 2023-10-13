@@ -1,7 +1,8 @@
-import React, {useMemo, useCallback} from 'react'
+import React, {useMemo, useCallback, useState} from 'react'
 import {useDropzone} from 'react-dropzone'
 import { RPC3 } from '../RPC3lib'
 import "./dropzone.css"
+import { Icon } from 'semantic-ui-react'
 
 const baseStyle = {
   flex: 1,
@@ -42,11 +43,13 @@ const icon =
 
 function Dropzone(props) {
 
+  const [loading, setLoading] = useState(false);
   const onDrop = useCallback(upFiles => {
-    loadAllFiles(upFiles).then(i => props.addFiles(i))
+    // Load all files
+    loadAllFiles(upFiles).then(i => props.addFiles(i));
   }, [])
 
-  function handleFileReading(f) {
+  const handleFileReading = useCallback((f) => {
     return new Promise((resolve, reject) => {
       const fileReader = new FileReader();
       fileReader.readAsArrayBuffer(f);
@@ -61,7 +64,7 @@ function Dropzone(props) {
         }
       }
     })
-  }
+  }, []);
 
   async function loadFile(f){
     const file = await handleFileReading(f);
@@ -69,8 +72,15 @@ function Dropzone(props) {
   }
 
   async function loadAllFiles(files){
+    // Start loading animation
+    setLoading(true);
+
     const promises = files.map(f => loadFile(f));
     const loadedFiles = await Promise.all(promises);
+
+    // Stop loading animation
+    setLoading(false);
+    
     return loadedFiles
   }
 
@@ -98,15 +108,37 @@ function Dropzone(props) {
       isDragReject
   ]);
 
+  function renderDropzone(){
+
+    let content = [
+      <svg className='svg-icon'><path d={icon}></path></svg>,
+      <p style={{width:'100%', textAlign:'center'}}>
+		    Drag and drop some files here, or click to select files
+	    </p>
+    ];
+
+    if (loading){
+      content = [
+        <Icon className='loading-icon' size='huge' loading name='spinner' />,
+        <p style={{width:'100%', textAlign:'center'}}>
+		      Loading data
+		    </p>
+      ];
+    }
+    
+    return(
+      <div className='loading-container' style={{minWidth:'350px'}}>
+        <div className='svg-container'>
+          {content[0]}
+        </div>
+        <span className='dropzone-text'>{content[1]}</span>
+      </div>
+    )
+  }
+
   return (
     <div {...getRootProps({style})}>
-      <input {...getInputProps()}/>
-      <div className='svg-container'>
-        <svg className='svg-icon'>
-          <path d={icon}></path>
-        </svg>
-      </div>
-      <p>Drag and drop some files here, or click to select files</p>
+      {renderDropzone()}
     </div>
   )
 }

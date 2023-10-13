@@ -127,6 +127,19 @@ String.prototype.hashCode = function() {
   return hash;
 }
 
+function normalizeInt16(array) {
+  // Array bounds
+  const absmaxValue = max([max(array), Math.abs(min(array))]);
+
+  // Normalization factor
+  const factor = absmaxValue / (Math.pow(2, 15) - 1);
+
+  // Normalize array
+  const normalizedArray = new Int16Array(array.map(value => Math.round(value / factor)));
+
+  return [normalizedArray, factor];
+}
+
 class Channel_Class {
 
 constructor(number, name, units, scale, dt, filename){
@@ -141,6 +154,7 @@ constructor(number, name, units, scale, dt, filename){
   this.value = [];
   this.min = null
   this.max = null
+  this.isSelected = false;
 
   // Rainflow realted props
   this.rf = {
@@ -157,7 +171,7 @@ constructor(number, name, units, scale, dt, filename){
 }
 
 hash(){
-  return this.Name.concat(this.filename).hashCode()
+  return this.Number.toString().concat(this.Name.concat(this.filename)).hashCode()
 }
 
 setMinMax(){
@@ -248,7 +262,6 @@ export class RPC3 {
       'SHORT_INTEGER': { 'unpack_char': 'h', 'bytes': 2 },
     };
 
-    this.integer_standard_full_scale = 32768;
     this.loadStatus = this.readFile(this.bytes, debug)
   
   }
@@ -396,12 +409,13 @@ export class RPC3 {
     const number_of_groups = parseInt(Math.ceil(frames / frames_per_group))
     const data_order = []
     let frame_no = 1
+    let removeLastFrame = false
 
     for (let i=0; i<number_of_groups; i++){
-      if (frame_no > frames) { break }
+      if (frame_no > frames) { removeLastFrame=true }
       let temp = []
       for (let j=0; j<frames_per_group; j++){
-        if (frame_no > frames) { break }
+        if (frame_no > frames) { removeLastFrame=true }
         temp.push(frame_no)
         frame_no += 1
       }
@@ -433,16 +447,7 @@ export class RPC3 {
         let scale_factor = 1.0;
         if (this.__data_type__ === 'SHORT_INTEGER'){
           // Channel scale
-          const channel_scale = this.Channels[channel]._scale
-          
-          // Standard integer full scale
-          const int_standard_full_scale = this.integer_standard_full_scale
-          
-          // RPC integer full scale
-          const int_rpc_full_scale = this.Headers['INT_FULL_SCALE']
-
-          // Compute scale factor
-          scale_factor = int_rpc_full_scale / int_standard_full_scale * channel_scale
+          scale_factor = this.Channels[channel]._scale
         }
 
         for (let frame=0; frame<frame_group.length; frame++){
@@ -457,12 +462,127 @@ export class RPC3 {
         }
       }
     }
-    
+
     for (let channel=0; channel<channels; channel++){
+      // Remove empty frame from channel values
+      if (removeLastFrame){
+        this.Channels[channel].value = this.Channels[channel].value.slice(0, point_per_frame*frames)
+      }
       // Set channel min and max
       this.Channels[channel].setMinMax();
     }
 
     return true
+  }
+
+  writeHeader(dt, chanData, PTS_PER_FRAME, FRAMES, PTS_PER_GROUP) {
+    // Current time
+    const ctime = new Date();
+    
+    // Header keys
+    const keys = [
+      'FORMAT',
+      'NUM_HEADER_BLOCKS',
+      'NUM_PARAMS',
+      'FILE_TYPE',
+      'TIME_TYPE',
+      'DELTA_T',
+      'CHANNELS',
+      'DATE',
+      'REPEATS',
+      'DATA_TYPE',
+      'PTS_PER_FRAME',
+      'PTS_PER_GROUP',
+      'FRAMES'
+    ];
+    // Channel header keys
+    const channelKeys = [
+      'DESC.CHAN_',
+      'UNITS.CHAN_',
+      'SCALE.CHAN_',
+      'LOWER_LIMIT.CHAN_',
+      'UPPER_LIMIT.CHAN_'
+    ];
+    // Header values
+    const values = [
+      'BINARY',
+      Math.ceil((keys.length + channelKeys.length * chanData.length) / 4).toString(),
+      (keys.length + channelKeys.length * chanData.length).toString(),
+      'TIME_HISTORY',
+      'RESPONSE',
+      dt.toExponential(6),
+      chanData.length.toString(),
+      `${ctime.getHours()}:${ctime.getMinutes()}:${ctime.getSeconds()} ${ctime.getDate()}-${ctime.getMonth() + 1}-${ctime.getFullYear()}`,
+      '1',
+      'SHORT_INTEGER',
+      PTS_PER_FRAME.toString(),
+      PTS_PER_GROUP.toString(),
+      FRAMES.toString()
+    ];
+    // Add channels headers keys and values
+    for (let idx = 0; idx < chanData.length; idx++) {
+      values.push(...chanData[idx], '1', '-1');
+      keys.push(...channelKeys.map(key => key + (idx + 1)));
+    }
+
+    let HEADER = Buffer.alloc(0);
+    for (let idx = 0; idx < keys.length; idx++) {
+      const keyBuffer = Buffer.from(keys[idx].padEnd(32, '\x00'), 'binary');
+      const valueBuffer = Buffer.from(values[idx].padEnd(96, '\x00'), 'binary');
+      HEADER = Buffer.concat([HEADER, keyBuffer, valueBuffer]);
+    }
+
+    const headerLen = 512 * parseInt(values[1]);
+    HEADER = Buffer.concat([HEADER, Buffer.alloc(headerLen - HEADER.length)]);
+    
+    return HEADER;
+  }
+
+  writeData(data, PTS_PER_GROUP) {
+    let DATA = Buffer.alloc(0);
+
+    for (const d of data) {
+        if (d.length < PTS_PER_GROUP) {
+          const lastItem = d[d.length - 1] 
+          const padding = PTS_PER_GROUP - d.length;
+
+          let data2pad = []
+          for (let i=0; i<padding; i++) data2pad.push(lastItem)
+          data2pad = new Int16Array(data2pad);
+
+          const paddedData = Buffer.concat([Buffer.from(d.buffer), Buffer.from(data2pad.buffer)]);
+          DATA = Buffer.concat([DATA, paddedData]);
+          
+        } else {
+            DATA = Buffer.concat([DATA, Buffer.from(d.buffer)]);
+        }
+    }
+    return DATA;
+  }
+
+  writeFile(dt, channels) {
+
+    // Defaults
+    const PTS_PER_FRAME = 1024;
+
+    const __channels__ = channels.map(c => normalizeInt16(c.value));
+    const __max_chan_len__ = max(__channels__.map(c => c[0].length));
+    const FRAMES = Math.ceil(__max_chan_len__ / PTS_PER_FRAME);
+    const PTS_PER_GROUP = FRAMES * PTS_PER_FRAME;
+
+    const chanHead = __channels__.map((c, idx) => [
+        channels[idx].Name,
+        channels[idx].Units,
+        c[1].toExponential(6)
+    ]);
+
+    const header = this.writeHeader(dt, chanHead, PTS_PER_FRAME, FRAMES, PTS_PER_GROUP);
+    const data = this.writeData(__channels__.map(c => c[0]), PTS_PER_GROUP);
+
+    const binary = Buffer.concat([header, data]);
+    // fs.writeFileSync(filename, headerAndData);
+    const base64Data = binary.toString('base64');
+
+    return base64Data
   }
 }
