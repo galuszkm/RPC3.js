@@ -1,16 +1,20 @@
 # MTS RPC-III files viewer
 
-> **Warning:** This repository is expired. Please see the new app at [https://github.com/galuszkm/RPC3](https://github.com/galuszkm/RPC3) for the latest version.
+![Expired](https://img.shields.io/badge/Status-Expired-red)
 
-RPC3.js is a web viewer for RPC-III files (.rsp, .rpc). 
-RPC-III is a commonly used format for storing measurements data.
+## ⚠️ WARNING
+
+**This repository is expired. Please see the new app at [https://github.com/galuszkm/RPC3](https://github.com/galuszkm/RPC3) for the latest version.**
+##
+RPC3.js is a web viewer for RPC-III files (.rsp, .rpc).  
+RPC-III is a commonly used format for storing measurements data.  
 This is a client-side JavaScript app developed in React.JS
 
 [Click here to try it now](https://htmlpreview.github.io/?https://github.com/galuszkm/RPC3.js/blob/master/example/index.html)!
 
 [Click here](https://github.com/galuszkm/RPC3.js/raw/master/example/SignalExample.rsp) to download the test file with signals.
 
-<img src="https://github.com/galuszkm/RPC3.js/blob/master/public/WebApp.png?raw=true">
+<img src="https://github.com/galuszkm/RPC3.js/blob/master/public/WebApp.png?raw=true" alt="Web App">
 
 ## Developer notes
-RPC-III file format is described <a href="https://github.com/galuszkm/RPC3.js/blob/master/public/RPC3_Format.pdf">here</a>
+RPC-III file format is described [here](https://github.com/galuszkm/RPC3.js/blob/master/public/RPC3_Format.pdf)
